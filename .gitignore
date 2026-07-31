@@ -1,0 +1,26 @@
+# Credenciales
+.env
+.ftp.json
+
+# Bot local
+bot/
+
+# Scripts internos (deploy con Google Apps Script fuera del repo)
+appscript.js
+
+# Tests / scratch
+test/
+
+# Editor / IDE
+.claude/
+.vscode/
+.idea/
+
+# Node
+node_modules/
+npm-debug.log*
+package-lock.json.bak
+
+# OS
+.DS_Store
+Thumbs.db

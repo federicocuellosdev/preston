@@ -1,0 +1,111 @@
+===========================================================================
+ PRESTON — Web de producción para cPanel
+ Fecha: 2026-07-24
+===========================================================================
+
+QUÉ ES ESTO
+-----------
+Sitio estático (una sola página, index.html) con landing + onboarding +
+panel interno de demo. Sin build, sin dependencias. Se sube tal cual.
+
+CONTENIDO DEL ZIP
+-----------------
+  index.html                 -> toda la web (HTML + CSS + JS inline)
+  .htaccess                  -> ruteo tipo SPA + MIME + caché + seguridad
+  assets/                    -> imágenes, favicons, imagen de Carla (png+webp)
+  Muli/                      -> tipografía de marca (10 .ttf)
+  LEEME-DEPLOY-Y-KOMMO.txt   -> este archivo (BORRAR del server tras leer)
+
+SUBIR A cPanel
+--------------
+1. Subir TODO el contenido a la raíz web (public_html/).
+2. OJO con el .htaccess: es un archivo OCULTO. Asegurate de que se suba
+   (en el Administrador de archivos de cPanel activá "Mostrar archivos
+   ocultos"). Sin .htaccess las URLs por etapa NO funcionan.
+3. Verificar que assets/ y Muli/ suban COMPLETAS.
+4. Borrar este LEEME del server.
+
+RUTEO / URLs (ya funciona con el .htaccess)
+-------------------------------------------
+La web es SPA: la URL cambia en cada etapa para poder medir. El .htaccess
+reescribe cualquier deep link a index.html y el JS restaura la vista.
+  /                          -> home
+  /onboarding                -> paso 1 (categorización)
+  /onboarding/datos          -> paso 2 (datos del lead)
+  /onboarding/documentacion  -> paso 3 (documentación)
+  /onboarding/listo          -> solicitud enviada
+  /equipo , /equipo/panel    -> acceso/panel interno (demo)
+
+MEDICIÓN — YA CABLEADA (NO tocar salvo que sepas lo que hacés)
+--------------------------------------------------------------
+  GA4         : G-12PMGMGS34        (en <head>)
+  Meta Pixel  : 1759689501968849    (en <head>)
+  Google Ads  : AW-11454575160      (en <head>)
+                conversión: send_to 'AW-11454575160/BkbtCOfg7dUcELjk-9Uq'
+
+  Cada cambio de etapa dispara un page_view virtual en GA4 y Meta.
+  Al CREARSE EL LEAD se disparan las 3 conversiones juntas
+  (GA generate_lead + Meta Lead + Google Ads conversion),
+  en index.html, dentro de obSubmitForm(), estas 2 líneas:
+
+      trackEvent('generate_lead','Lead',{lead_id:r.lead_id, categoria:ob.cat});
+      if(window.gtag) gtag('event','conversion',{send_to:'AW-11454575160/BkbtCOfg7dUcELjk-9Uq',value:1.0,currency:'ARS'});
+
+===========================================================================
+ TU PARTE: KOMMO  (lo dejamos scaffolded, elegí el método que prefieras)
+===========================================================================
+
+ESTADO ACTUAL
+-------------
+El onboarding está en MODO PROTOTIPO: no crea leads reales todavía.
+Todo el contacto con el backend pasa por UN solo punto en index.html:
+
+    var OB_ENDPOINT = null;   // <-- mientras sea null, se simulan las respuestas
+
+    var PrestonAPI = {
+      createLead: function(payload){ ... POST OB_ENDPOINT/leads  -> {lead_id} }
+      enrichLead: function(leadId,payload,files){ ... PATCH OB_ENDPOINT/leads/:id }
+    }
+
+Con OB_ENDPOINT en null, createLead() devuelve un lead_id falso (mock) y el
+flujo sigue. El paso 2 (createLead) es el que "crea el lead"; el paso 3
+(enrichLead) lo enriquece con datos + adjuntos de documentación.
+
+DATOS QUE SE RECOLECTAN EN EL PASO 2 (payload de createLead)
+------------------------------------------------------------
+  categoria, sub_categoria, motivo_yafue,
+  situacion_laboral, jurisdiccion,
+  nombre, apellido, telefono (WhatsApp), dni, email (opcional)
+
+DOS CAMINOS PARA CONECTAR KOMMO
+-------------------------------
+El cliente pidió "embed nativo de Kommo", pero como vos tenés el tema más
+claro, usá el que mejor te sirva:
+
+  OPCION A — Embed nativo de Kommo (sin backend)
+    Incrustá el formulario web de Kommo en el PASO DE DATOS del onboarding.
+    En index.html buscá el bloque:  <div class="ob-step" data-ob="form">
+    (es el "Tus datos"). Ahí va el embed. Cuando el form de Kommo se envía,
+    Kommo crea el lead.
+    IMPORTANTE: en el callback de éxito del form de Kommo, dispará las 2
+    líneas de conversión de arriba para no perder la medición.
+
+  OPCION B — Backend/API (token del lado servidor)
+    Seteá OB_ENDPOINT a tu endpoint, por ej:
+        var OB_ENDPOINT = 'https://api.preston.com.ar/onboarding';
+    Entonces:
+      - createLead hace POST  {OB_ENDPOINT}/leads         y espera { lead_id }
+      - enrichLead hace PATCH {OB_ENDPOINT}/leads/:id      con FormData (data+files)
+    Ese backend es el que habla con la API v4 de Kommo (el token NUNCA va en
+    el JS del navegador). Las conversiones ya se disparan solas en createLead
+    success, así que por este camino no tenés que tocar nada de medición.
+
+REGLA DE ORO
+------------
+No importa el camino: la conversión (GA + Meta + Google Ads) tiene que
+dispararse EN EL MOMENTO en que se confirma el lead. Si movés ese momento,
+llevate con vos esas 2 líneas de trackEvent/gtag.
+
+Dudas del lado front (ruteo, dónde engancha cada cosa): está todo comentado
+en index.html, sección "Onboarding v2" y "Ruteo por URL".
+===========================================================================

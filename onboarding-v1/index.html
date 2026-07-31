@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <!-- Google tag (gtag.js) --><script async src="https://www.googletagmanager.com/gtag/js?id=G-TCKR2N7DGB"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-TCKR2N7DGB');
+</script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Preston | Solicitud</title>
+    <link rel="icon" href="assets/icon-on.png" type="image/png">
+    <link rel="stylesheet" href="assets/main.css">
+<!-- Meta Pixel Code -->
+<script>
+!function(f,b,e,v,n,t,s)
+{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];
+s.parentNode.insertBefore(t,s)}(window, document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+fbq('init', '1341954716529641');
+fbq('track', 'PageView');
+</script>
+<noscript><img height="1" width="1" style="display:none"
+src="https://www.facebook.com/tr?id=1341954716529641&ev=PageView&noscript=1"
+/></noscript>
+<!-- End Meta Pixel Code -->
+</head>
+<body>
+    <nav>
+        <img src="assets/logo-on.png" alt="Logo" class="logo">
+    </nav>
+    <div class="container">
+        <!-- Step 1: Initial question -->
+        <div class="form-step" id="step1">
+            <h2 class="question">¿Cuál es tu situación laboral?</h2>
+            <div class="options">
+                <button class="option-button" data-next="step-empleado-publico">Empleado Público</button>
+                <button class="option-button" data-next="step-jubilado">Jubilado o Pensionado</button>
+                <button class="option-button" data-next="step-final">Otros</button>
+            </div>
+        </div>
+
+        <!-- Step 2: Empleado Público -->
+        <div class="form-step" id="step-empleado-publico" style="display: none;">
+            <h2 class="question">¿De donde eres empleado?</h2>
+            <div class="options">
+                <button class="option-button" data-value="PUBLICO-SF" data-next="step-datos-personales">Provincia Santa Fe</button>
+                <button class="option-button" data-value="UNR" data-next="step-datos-personales">UNR (Universidad Nacional Rosario)</button>
+                <button class="option-button" data-value="MUNIC-SF" data-next="step-datos-personales">Municipalidades y Comunas Santa Fe</button>
+                <button class="option-button" data-value="PUBLICO-CABA" data-next="step-datos-personales">Gobierno Ciudad Buenos Aires</button>
+                <button class="option-button" data-value="PUBLICO-CHUBUT" data-next="step-datos-personales">Chubut</button>
+                <button class="option-button" data-value="PUBLICO-ER" data-next="step-datos-personales">Entre Ríos</button>
+                <button class="option-button" data-value="MUNIC-ROSARIO" data-next="step-datos-personales">Municipalidad Rosario</button>
+                <button class="option-button" data-value="FFSS-ACTIVO" data-next="step-datos-personales">Fuerzas Seguridad y Armadas Nacional</button>
+                <button class="option-button" data-next="step-final">Otros</button>
+            </div>
+            <button class="back-button" data-prev="step1">
+                <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-arrow-left" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8"/>
+                </svg>
+            </button>
+        </div>
+
+        <!-- Step 3: Jubilado o Pensionado -->
+        <div class="form-step" id="step-jubilado" style="display: none;">
+            <h2 class="question">¿De donde eres jubilado o pensionado?</h2>
+            <div class="options">
+                <button class="option-button" data-value="PUBLICO-ER" data-next="step-datos-personales">Entre Ríos</button>
+                <button class="option-button" data-value="JUBILADO-SF" data-next="step-datos-personales">Provincia Santa Fe</button>
+                <button class="option-button" data-value="JUBILADO-ANSES" data-next="step-datos-personales">ANSES</button>
+                <button class="option-button" data-value="FFSS-RETIRADO" data-next="step-datos-personales">Retirado Fuerzas Seguridad Nacional</button>
+                <button class="option-button" data-next="step-final">Otros</button>
+            </div>
+            <button class="back-button" data-prev="step1">
+                <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-arrow-left" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8"/>
+                </svg>
+            </button>
+        </div>
+
+        <!-- Step 4: Datos Personales -->
+        <div class="form-step" id="step-datos-personales" style="display: none;">
+            <h2 class="question">Brindanos estos datos para validar tu solicitud y realizarte una propuesta</h2>
+            <p id="datos-personales-error" style="display: none;">Por favor completa todos los campos para continuar.</p>
+            <input type="text" class="text-input" placeholder="Nombre" required>
+            <input type="text" class="text-input" placeholder="Apellido" required>
+            <input type="tel" class="text-input" placeholder="Teléfono Celular" required>
+            <input type="text" class="text-input" placeholder="DNI" required>
+            <button class="option-button continue-button" id="next-from-datos-personales">Continuar</button>
+            <button class="back-button">
+                <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-arrow-left" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8"/>
+                </svg>
+            </button>
+        </div>
+
+        <!-- Step 5: Final Step for other options -->
+        <div class="form-step" id="step-final" style="display: none;">
+            <h2 class="question">Gracias por tu interés</h2>
+            <p>En este momento no tenemos una oferta para tu situación laboral.</p>
+            <button class="back-button" data-prev="step1">
+                <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-arrow-left" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8"/>
+                </svg>
+            </button>
+        </div>
+
+        <!-- Step 6: Error -->
+        <div class="form-step" id="step-error" style="display: none;">
+            <h2 class="question">Ha ocurrido un error por favor volver a intentar</h2>
+            <button class="option-button" id="resend-data">Reenviar datos</button>
+            <button class="back-button" data-prev="step-datos-personales">
+                <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-arrow-left" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8"/>
+                </svg>
+            </button>
+        </div>
+
+        <!-- Step 7: Success -->
+        <div class="form-step" id="step-success" style="display: none;">
+            <h2 class="question">¡Falta un solo paso!</h2>
+            <p>Tu solicitud ingresó correctamente. Escribinos por WhatsApp para que un ejecutivo tome tu caso hoy mismo y te acompañe hasta la acreditación.</p>
+            <button class="option-button" id="wsp-notify-button">Escribir por WhatsApp</button>
+            <button class="back-button" data-prev="step1">
+                <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-arrow-left" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8"/>
+                </svg>
+            </button>
+        </div>
+    </div>
+    <script src="assets/main.js"></script>
+</body>
+</html>
