@@ -1,0 +1,58 @@
+name: Deploy FTP a preston.com.ar
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'onboarding-v1/**'
+      - 'onboarding-v2/web/**'
+      - '.github/workflows/deploy.yml'
+  workflow_dispatch: {}
+
+jobs:
+  deploy-v2-root:
+    name: onboarding-v2/web → raíz FTP
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: FTP sync (v2 → /)
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: ./onboarding-v2/web/
+          server-dir: /
+          protocol: ftp
+          dangerous-clean-slate: false
+          log-level: minimal
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/.DS_Store
+            **/LEEME-DEPLOY-Y-KOMMO.txt
+            **/*.md
+
+  deploy-v1:
+    name: onboarding-v1 → /onboarding/
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: FTP sync (v1 → /onboarding/)
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: ./onboarding-v1/
+          server-dir: /onboarding/
+          protocol: ftp
+          dangerous-clean-slate: false
+          log-level: minimal
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/.DS_Store
+            **/*.md
