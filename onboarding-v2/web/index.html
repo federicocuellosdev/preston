@@ -1237,6 +1237,10 @@ function obShow(phase){
 }
 function obFoot(){
   var b=document.getElementById('obNext');
+  var foot=b.closest('.app-foot');
+  /* En 'end' la pantalla ya tiene su propio CTA (WhatsApp): ocultamos el footer */
+  if(ob.phase==='end'){ if(foot) foot.style.display='none'; return; }
+  if(foot) foot.style.display='';
   if(ob.busy){b.disabled=true;b.innerHTML='Enviando<span class="spin"></span>';return;}
   if(ob.phase==='q'){
     b.disabled = ob.sel===null;
@@ -1246,8 +1250,6 @@ function obFoot(){
   } else if(ob.phase==='docs'){
     b.disabled = !!ob.bankPending;
     b.innerHTML='Enviar solicitud <svg class="icon sm"><use href="#i-check"/></svg>';
-  } else {
-    b.disabled=false; b.innerHTML='Volver al inicio';
   }
 }
 function obErr(id,msg){
