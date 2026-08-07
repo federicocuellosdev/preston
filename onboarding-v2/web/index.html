@@ -1090,14 +1090,7 @@ var TREE={
   A4:{q:'¿De qué provincia?',o:[
     {l:'Santa Fe',i:'map',end:{cat:'PUBLICO-SF'}},
     {l:'Ciudad de Buenos Aires',i:'map',end:{cat:'PUBLICO-CABA'}},
-    {l:'Chubut',i:'map',go:'A4c'},
-    {l:'Entre Ríos',i:'map',end:{cat:'PUBLICO-ER'}},
     {l:'Otra provincia',i:'user',end:{cat:'YAFUE',motivo:'provincia-no-incluida'}}
-  ]},
-
-  A4c:{q:'¿Provincial o municipal?',s:'Las dos jurisdicciones de Chubut tienen línea disponible.',o:[
-    {l:'Provincial',i:'map',set:{jurisdiccion:'provincial'},end:{cat:'PUBLICO-CHUBUT'}},
-    {l:'Municipal chubutense',i:'building',set:{jurisdiccion:'municipal'},end:{cat:'PUBLICO-CHUBUT'}}
   ]},
 
   A5:{q:'¿En qué municipio trabajás?',o:[
@@ -1115,7 +1108,6 @@ var TREE={
 
   B2:{q:'¿De qué provincia sos jubilado o pensionado?',o:[
     {l:'Santa Fe',i:'map',end:{cat:'JUBILADO-SF'}},
-    {l:'Entre Ríos',i:'map',end:{cat:'PUBLICO-ER'}},
     {l:'Otra provincia',i:'user',end:{cat:'YAFUE',motivo:'provincia-no-incluida'}}
   ]},
 
