@@ -1200,17 +1200,11 @@ function obReset(){
   obRenderQ();
 }
 
-/* Se llama al entrar a la pantalla (desde go()). Retoma si corresponde. */
+/* Se llama al entrar a la pantalla (desde go()). Siempre empieza desde 0:
+   descarta cualquier estado guardado en localStorage. */
 function obEnter(){
-  var d=obLoad();
-  if(!d||!d.lead_id) return obReset();
-  ob.lead=d.lead_id; ob.cat=d.categoria; ob.sub=d.sub_categoria;
-  ob.motivo=d.motivo_yafue; ob.estado=d.estado; ob.createdAt=d.created_at;
-  ob.ans.nombre=d.nombre; ob.files={};
-  if(d.estado==='paso3_completo') return obEnd('done');
-  if(d.estado==='derivado_yafue') return obEnd('yafue');
-  if(d.estado==='suspendido') return obEnd('unr');
-  obRenderDocs(); /* paso2_completo → directo al Paso 3 */
+  try { localStorage.removeItem(OB_KEY); } catch(e) {}
+  obReset();
 }
 
 /* ---- Chrome: paso visible, barra, botón ---------------------------- */
