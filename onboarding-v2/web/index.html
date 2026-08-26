@@ -1301,6 +1301,15 @@ function obSubmitForm(){
 
   ob.ans.nombre=nombre; ob.ans.apellido=apellido; ob.ans.telefono=tel; ob.ans.dni=dni; ob.ans.email=email||null;
 
+  /* YAFUE requiere consentimiento explícito antes de compartir datos.
+     No creamos el lead todavía: mostramos la pantalla de aceptación y el
+     POST se dispara desde obConfirmYafue() cuando el usuario apriete "Acepto". */
+  if(ob.cat==='YAFUE'){
+    ob.estado='yafue_consent_pending';
+    obSave();
+    return obEnd('yafue');
+  }
+
   ob.busy=true; obFoot();
   PrestonAPI.createLead({
     categoria:ob.cat, sub_categoria:ob.sub, motivo_yafue:ob.motivo,
@@ -1314,13 +1323,48 @@ function obSubmitForm(){
     trackEvent('generate_lead','Lead',{lead_id:r.lead_id, categoria:ob.cat});
     if(window.gtag) gtag('event','conversion',{send_to:'AW-11454575160/BkbtCOfg7dUcELjk-9Uq',value:1.0,currency:'ARS'});
     /* El lead ya existe. A partir de acá nada se pierde. */
-    if(ob.cat==='YAFUE'){ ob.estado='derivado_yafue'; obSave(); return obEnd('yafue'); }
     if(ob.cat==='UNR'){   ob.estado='suspendido';     obSave(); return obEnd('unr');   }
     ob.estado='paso2_completo'; obSave();
     obRenderDocs();
   }).catch(function(){
     ob.busy=false; obFoot();
     obErr('obFormErr','No pudimos enviar tus datos. Revisá tu conexión y probá de nuevo.');
+  });
+}
+
+/* YAFUE: crea el lead en la cuenta YAFUE recién cuando el usuario acepta
+   compartir sus datos. Al terminar abre yafue.ar en una pestaña nueva.
+   Si el POST ya se hizo (rebote / vuelve a apretar) sólo abre el link. */
+function obConfirmYafue(){
+  if(ob.busy) return;
+  var btn=document.getElementById('obYafueAccept');
+  function reset(){ if(btn){ btn.removeAttribute('aria-busy'); btn.style.opacity='1'; btn.style.pointerEvents='auto'; } }
+  if(ob.lead){
+    window.open('https://yafue.ar','_blank','noopener,noreferrer');
+    return;
+  }
+  ob.busy=true;
+  if(btn){ btn.setAttribute('aria-busy','true'); btn.textContent='Enviando…'; btn.style.opacity='.7'; btn.style.pointerEvents='none'; }
+  PrestonAPI.createLead({
+    categoria:'YAFUE', sub_categoria:ob.sub||null, motivo_yafue:ob.motivo||null,
+    situacion_laboral:ob.ans.situacion_laboral||null, jurisdiccion:ob.ans.jurisdiccion||null,
+    nombre:ob.ans.nombre, apellido:ob.ans.apellido, telefono:ob.ans.telefono, dni:ob.ans.dni,
+    email:ob.ans.email||null
+  }).then(function(r){
+    ob.busy=false;
+    ob.lead=r.lead_id;
+    ob.createdAt=new Date().toISOString();
+    ob.estado='derivado_yafue';
+    obSave();
+    trackEvent('generate_lead','Lead',{lead_id:r.lead_id, categoria:'YAFUE'});
+    if(window.gtag) gtag('event','conversion',{send_to:'AW-11454575160/BkbtCOfg7dUcELjk-9Uq',value:1.0,currency:'ARS'});
+    window.open('https://yafue.ar','_blank','noopener,noreferrer');
+    reset();
+    if(btn) btn.textContent='Ir a yafue.ar';
+  }).catch(function(){
+    ob.busy=false; reset();
+    if(btn) btn.textContent='Acepto';
+    alert('No pudimos enviar tus datos a YAFUE. Probá de nuevo.');
   });
 }
 
@@ -1488,7 +1532,7 @@ function obEnd(kind){
       '<h3>Tenemos otra alternativa para vos</h3>'+
       '<p class="ob-sub">En este momento no tenemos una línea de Preston disponible para tu solicitud. Sin embargo, tenés la posibilidad de solicitar tu préstamo en yafue.ar.</p>'+
       '<p class="sim-note">Quiero continuar con YAFUE y autorizo a Preston a compartir los datos de mi solicitud para que puedan contactarme.</p>'+
-      '<a class="btn btn-rojo btn-block btn-yafue" href="https://yafue.ar" target="_blank" rel="noopener noreferrer">Acepto</a></div>';
+      '<button id="obYafueAccept" class="btn btn-rojo btn-block btn-yafue" onclick="obConfirmYafue()">Acepto</button></div>';
   }
   else if(kind==='unr'){
     h='<div class="ob-result"><div class="big warn"><svg class="icon lg"><use href="#i-clock"/></svg></div>'+
