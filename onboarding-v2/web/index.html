@@ -371,6 +371,7 @@ input[type=range]::-moz-range-thumb{width:24px;height:24px;border:none;border-ra
 .btn-wa{background:#25D366;color:#fff;display:inline-flex;align-items:center;gap:10px;justify-content:center;margin:8px auto 18px;box-shadow:0 8px 20px rgba(37,211,102,.28)}
 .btn-wa:hover{background:#1EBE5A;color:#fff}
 .btn-wa .icon{color:#fff}
+.btn-yafue{margin-top:16px}
 .ob-result .big{width:78px;height:78px;border-radius:999px;background:rgba(31,164,99,.12);color:var(--ok);display:grid;place-items:center;margin:6px auto 18px;animation:pop var(--d3) var(--ease-spring)}
 @keyframes pop{from{transform:scale(.5);opacity:0}to{transform:scale(1);opacity:1}}
 .ob-result .big.warn{background:rgba(227,181,31,.14);color:var(--observar)}
@@ -1487,7 +1488,7 @@ function obEnd(kind){
       '<h3>Tenemos otra alternativa para vos</h3>'+
       '<p class="ob-sub">En este momento no tenemos una línea de Preston disponible para tu solicitud. Sin embargo, tenés la posibilidad de solicitar tu préstamo en yafue.ar.</p>'+
       '<p class="sim-note" style="text-align:left">Quiero continuar con YAFUE y autorizo a Preston a compartir los datos de mi solicitud para que puedan contactarme.</p>'+
-      '<a class="btn btn-rojo btn-block" href="https://yafue.ar" target="_blank" rel="noopener noreferrer">Acepto</a></div>';
+      '<a class="btn btn-rojo btn-block btn-yafue" href="https://yafue.ar" target="_blank" rel="noopener noreferrer">Acepto</a></div>';
   }
   else if(kind==='unr'){
     h='<div class="ob-result"><div class="big warn"><svg class="icon lg"><use href="#i-clock"/></svg></div>'+
