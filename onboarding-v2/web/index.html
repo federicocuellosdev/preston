@@ -1196,7 +1196,7 @@ function obLoad(){
 
 /* ---- Estado -------------------------------------------------------- */
 var ob={phase:'q',node:'root',path:[],sel:null,ans:{},files:{},
-        lead:null,cat:null,sub:null,motivo:null,estado:null,createdAt:null,busy:false};
+        lead:null,leadYafue:null,cat:null,sub:null,motivo:null,estado:null,createdAt:null,busy:false,yafueEnviado:false};
 
 function obReset(){
   ob={phase:'q',node:'root',path:[],sel:null,ans:{},files:{},
@@ -1332,28 +1332,42 @@ function obSubmitForm(){
   });
 }
 
-/* YAFUE: crea el lead en la cuenta YAFUE recién cuando el usuario acepta
-   compartir sus datos. Al terminar abre yafue.ar en una pestaña nueva.
-   Si el POST ya se hizo (rebote / vuelve a apretar) sólo abre el link. */
+/* YAFUE — todo el envío ocurre acá, sólo si el usuario acepta.
+   Dos casos:
+     A) Rama YAFUE del árbol: no hay lead previo. Se crea en la cuenta YAFUE.
+     B) Banco no apto: hay lead Preston (ob.lead). Se marca en Preston
+        (enrichLead con yafue:true) Y además se crea en la cuenta YAFUE.
+   Si ya se envió (ob.yafueEnviado true) el botón sólo abre yafue.ar. */
 function obConfirmYafue(){
   if(ob.busy) return;
   var btn=document.getElementById('obYafueAccept');
   function reset(){ if(btn){ btn.removeAttribute('aria-busy'); btn.style.opacity='1'; btn.style.pointerEvents='auto'; } }
-  if(ob.lead){
+  if(ob.yafueEnviado){
     window.open('https://yafue.ar','_blank','noopener,noreferrer');
     return;
   }
   ob.busy=true;
   if(btn){ btn.setAttribute('aria-busy','true'); btn.textContent='Enviando…'; btn.style.opacity='.7'; btn.style.pointerEvents='none'; }
-  PrestonAPI.createLead({
-    categoria:'YAFUE', sub_categoria:ob.sub||null, motivo_yafue:ob.motivo||null,
-    situacion_laboral:ob.ans.situacion_laboral||null, jurisdiccion:ob.ans.jurisdiccion||null,
-    nombre:ob.ans.nombre, apellido:ob.ans.apellido, telefono:ob.ans.telefono, dni:ob.ans.dni,
-    email:ob.ans.email||null
+
+  /* (B) Si el lead Preston ya existe (banco no apto), marcarlo como derivado.
+     No bloquea al createLead YAFUE aunque falle. */
+  var esBancoNoApto = ob.lead && ob.motivo==='banco-no-apto';
+  var pMark = esBancoNoApto
+    ? PrestonAPI.enrichLead(ob.lead,{yafue:true,motivo_yafue:'banco-no-apto',banco:'otro'},{}).catch(function(){})
+    : Promise.resolve();
+
+  pMark.then(function(){
+    return PrestonAPI.createLead({
+      categoria:'YAFUE', sub_categoria:ob.sub||null, motivo_yafue:ob.motivo||null,
+      situacion_laboral:ob.ans.situacion_laboral||null, jurisdiccion:ob.ans.jurisdiccion||null,
+      nombre:ob.ans.nombre, apellido:ob.ans.apellido, telefono:ob.ans.telefono, dni:ob.ans.dni,
+      email:ob.ans.email||null
+    });
   }).then(function(r){
     ob.busy=false;
-    ob.lead=r.lead_id;
-    ob.createdAt=new Date().toISOString();
+    ob.yafueEnviado=true;
+    ob.leadYafue=r.lead_id;
+    if(!ob.lead){ ob.lead=r.lead_id; ob.createdAt=new Date().toISOString(); }
     ob.estado='derivado_yafue';
     obSave();
     trackEvent('generate_lead','Lead',{lead_id:r.lead_id, categoria:'YAFUE'});
@@ -1433,12 +1447,14 @@ function obBank(v){
   document.getElementById('obRest').hidden=false;
   obFoot();
 }
+/* Banco no apto → mostramos pantalla YAFUE, pero NO tocamos ni el lead
+   de Preston ni la cuenta YAFUE hasta que el usuario acepte los términos.
+   El envío (enrichLead a Preston + createLead a YAFUE) ocurre en
+   obConfirmYafue() cuando presiona "Acepto". */
 function obBankReject(){
-  ob.ans.banco='otro'; ob.motivo='banco-no-apto'; ob.estado='derivado_yafue';
-  ob.busy=true; obFoot();
-  PrestonAPI.enrichLead(ob.lead,{yafue:true,motivo_yafue:'banco-no-apto',banco:'otro'},{})
-    .then(function(){ob.busy=false;obSave();obEnd('yafue');})
-    .catch(function(){ob.busy=false;obSave();obEnd('yafue');}); /* el lead ya existe: no lo perdemos */
+  ob.ans.banco='otro'; ob.motivo='banco-no-apto'; ob.estado='yafue_consent_pending';
+  obSave();
+  obEnd('yafue');
 }
 
 function obYN(k,v,el){
