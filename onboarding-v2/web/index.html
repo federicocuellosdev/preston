@@ -1279,6 +1279,16 @@ function obBack(){
 }
 function obAdvanceTree(){
   var opt=TREE[ob.node].o[ob.sel];
+  /* Guardamos el label seleccionado según la profundidad del árbol.
+     Nivel 0 (root)      → Tipo (Empleado / Jubilado / Otra situación)
+     Nivel 1 (A1/B1)     → Categoría (Fuerza, Universidad, Provincial, etc.)
+     Nivel 2+            → Detalle (Gendarmería Nacional, UNR, Santa Fe, etc.)
+     Estos labels van a la nota del lead en Kommo. */
+  ob.labels = ob.labels || {tipo:null, categoria:null, detalle:null};
+  var depth = ob.path.length;
+  if (depth === 0)      ob.labels.tipo      = opt.l;
+  else if (depth === 1) ob.labels.categoria = opt.l;
+  else                  ob.labels.detalle   = opt.l;
   if(opt.set) Object.keys(opt.set).forEach(function(k){ob.ans[k]=opt.set[k];});
   if(opt.go){ ob.path.push(ob.node); ob.node=opt.go; return obRenderQ(); }
   /* Hoja: sólo etiqueta. Siempre sigue al Paso 2. */
@@ -1317,6 +1327,9 @@ function obSubmitForm(){
   PrestonAPI.createLead({
     categoria:ob.cat, sub_categoria:ob.sub, motivo_yafue:ob.motivo,
     situacion_laboral:ob.ans.situacion_laboral||null, jurisdiccion:ob.ans.jurisdiccion||null,
+    tipo_label:(ob.labels&&ob.labels.tipo)||null,
+    categoria_label:(ob.labels&&ob.labels.categoria)||null,
+    detalle_label:(ob.labels&&ob.labels.detalle)||null,
     nombre:nombre, apellido:apellido, telefono:tel, dni:dni, email:ob.ans.email
   }).then(function(r){
     ob.busy=false;
@@ -1363,6 +1376,9 @@ function obConfirmYafue(){
     return PrestonAPI.createLead({
       categoria:'YAFUE', sub_categoria:ob.sub||null, motivo_yafue:ob.motivo||null,
       situacion_laboral:ob.ans.situacion_laboral||null, jurisdiccion:ob.ans.jurisdiccion||null,
+      tipo_label:(ob.labels&&ob.labels.tipo)||null,
+      categoria_label:(ob.labels&&ob.labels.categoria)||null,
+      detalle_label:(ob.labels&&ob.labels.detalle)||null,
       nombre:ob.ans.nombre, apellido:ob.ans.apellido, telefono:ob.ans.telefono, dni:ob.ans.dni,
       email:ob.ans.email||null
     });
