@@ -1158,8 +1158,11 @@ function reqFor(cat,sub){
       {t:'file',k:'resumen',l:'Último resumen de la tarjeta',n:1,dep:'tarjeta'}
     ];
   }
-  /* PUBLICO-SF, PUBLICO-CABA, PUBLICO-ER, PUBLICO-CHUBUT, MUNIC-ROSARIO, JUBILADO-SF */
-  return [{t:'file',k:'recibos',l:'Últimos 3 recibos de sueldo o haberes',hint:'PDF o imagen. Podés subirlos de a uno.',n:3,opc:true}];
+  /* Excepciones: Municipalidad de Rosario y UNR mantienen 3 recibos. */
+  if(cat==='MUNIC-ROSARIO'||cat==='UNR')
+    return [{t:'file',k:'recibos',l:'Últimos 3 recibos de sueldo',hint:'PDF o imagen. Podés subirlos de a uno.',n:3,opc:true}];
+  /* Resto (PUBLICO-SF, PUBLICO-CABA, PUBLICO-ER, PUBLICO-CHUBUT, JUBILADO-SF): 1 recibo. */
+  return [{t:'file',k:'recibo',l:'Último recibo de sueldo o haberes',hint:'PDF o imagen.',n:1,opc:true}];
 }
 
 var CAT_LABEL={
