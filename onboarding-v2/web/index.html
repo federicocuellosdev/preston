@@ -1146,20 +1146,20 @@ function reqFor(cat,sub){
   }
   if(cat==='FFSS-RETIRADO') return [
     {t:'num',k:'disponible_afectacion',l:'¿Conocés tu disponible de afectación?',ph:'Ej. 420000',opc:true},
-    {t:'file',k:'recibo',l:'Último recibo de haberes',hint:'PDF o imagen. Con esto verificamos tu caja pagadora.',n:1}
+    {t:'file',k:'recibo',l:'Último recibo de haberes',hint:'PDF o imagen. Con esto verificamos tu caja pagadora.',n:1,opc:true}
   ];
   if(cat==='MUNIC-SF'||cat==='JUBILADO-ANSES'){
     var hab = cat==='JUBILADO-ANSES' ? 'haberes' : 'sueldo';
     return [
       {t:'bank'},
-      {t:'file',k:'recibo',l:'Último recibo de '+hab,hint:'PDF o imagen.',n:1},
+      {t:'file',k:'recibo',l:'Último recibo de '+hab,hint:'PDF o imagen.',n:1,opc:true},
       {t:'file',k:'movimientos',l:'Movimientos bancarios de los últimos 2 meses',hint:'Tienen que verse las 2 últimas acreditaciones. PDF o ticket de cajero.',n:1},
       {t:'yesno',k:'tarjeta',l:'¿Figuran pagos de tarjeta de crédito en esos movimientos?'},
       {t:'file',k:'resumen',l:'Último resumen de la tarjeta',n:1,dep:'tarjeta'}
     ];
   }
   /* PUBLICO-SF, PUBLICO-CABA, PUBLICO-ER, PUBLICO-CHUBUT, MUNIC-ROSARIO, JUBILADO-SF */
-  return [{t:'file',k:'recibos',l:'Últimos 3 recibos de sueldo o haberes',hint:'PDF o imagen. Podés subirlos de a uno.',n:3}];
+  return [{t:'file',k:'recibos',l:'Últimos 3 recibos de sueldo o haberes',hint:'PDF o imagen. Podés subirlos de a uno.',n:3,opc:true}];
 }
 
 var CAT_LABEL={
@@ -1429,7 +1429,7 @@ function obFieldHTML(f){
     '<button type="button" onclick="obYN(\''+f.k+'\',\'no\',this)">No</button></div></div>';
 
   if(f.t==='file') return '<div class="field" id="fw_'+f.k+'"'+(f.dep?' hidden':'')+'>'+
-    '<label>'+f.l+(f.n>1?' <span class="opc">'+f.n+' archivos</span>':'')+'</label>'+
+    '<label>'+f.l+(f.opc?' <span class="opc">opcional</span>':'')+(f.n>1?' <span class="opc">'+f.n+' archivos</span>':'')+'</label>'+
     '<label class="drop" for="fi_'+f.k+'">'+
       '<div class="di"><svg class="icon"><use href="#i-doc"/></svg></div>'+
       '<b>Tocá para subir</b><small>'+(f.hint||'PDF o imagen.')+'</small>'+
@@ -1503,7 +1503,7 @@ function obSubmitDocs(){
     }
     else if(f.t==='file'){
       var have=(ob.files[f.k]||[]).length;
-      if(have<f.n){ faltan=f; break; }
+      if(have<f.n && !f.opc){ faltan=f; break; }
     }
   }
   if(faltan) return obErr('obDocsErr', faltan.n>1
