@@ -1087,7 +1087,7 @@ var TREE={
   ]},
 
   A3:{q:'¿En qué universidad trabajás?',o:[
-    {l:'Universidad Nacional de Rosario',i:'flag',end:{cat:'UNR',estado:'suspendido'}},
+    {l:'Universidad Nacional de Rosario',i:'flag',end:{cat:'UNR'}},
     {l:'Otra universidad',i:'user',end:{cat:'YAFUE',motivo:'universidad-no-incluida'}}
   ]},
 
@@ -1339,7 +1339,7 @@ function obSubmitForm(){
     trackEvent('generate_lead','Lead',{lead_id:r.lead_id, categoria:ob.cat});
     if(window.gtag) gtag('event','conversion',{send_to:'AW-11454575160/BkbtCOfg7dUcELjk-9Uq',value:1.0,currency:'ARS'});
     /* El lead ya existe. A partir de acá nada se pierde. */
-    if(ob.cat==='UNR'){   ob.estado='suspendido';     obSave(); return obEnd('unr');   }
+    /* UNR reactivada: sigue el flujo normal al Paso 3 (pide 3 recibos). */
     ob.estado='paso2_completo'; obSave();
     obRenderDocs();
   }).catch(function(){
