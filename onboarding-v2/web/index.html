@@ -26,10 +26,16 @@ t.src=v;s=b.getElementsByTagName(e)[0];
 s.parentNode.insertBefore(t,s)}(window, document,'script',
 'https://connect.facebook.net/en_US/fbevents.js');
 fbq('init', '1759689501968849');
+/* Píxel heredado de /onboarding/ (v1). Convive durante la migración de
+   campañas Meta al píxel nuevo. Al estar ambos inicializados en la
+   misma página, cada fbq('track', ...) se dispara en los dos. */
+fbq('init', '1341954716529641');
 fbq('track', 'PageView');
 </script>
 <noscript><img height="1" width="1" style="display:none"
 src="https://www.facebook.com/tr?id=1759689501968849&ev=PageView&noscript=1"/></noscript>
+<noscript><img height="1" width="1" style="display:none"
+src="https://www.facebook.com/tr?id=1341954716529641&ev=PageView&noscript=1"/></noscript>
 
 <!-- ===== Metricool tracker ===== -->
 <img src="https://tracker.metricool.com/c3po.jpg?hash=4c946fa88673f0af195203e14bab12cb" height="1" width="1" style="display:none" alt="" aria-hidden="true"/>
