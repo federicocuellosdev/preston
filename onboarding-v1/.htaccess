@@ -1,0 +1,23 @@
+# =====================================================================
+# Preston — Redirect 301 permanente de /onboarding/ al nuevo flujo.
+#
+# A partir del 13/10/2026 este path (/onboarding/) deja de servir el
+# formulario viejo (v1) y manda al usuario a /solicitar (v2). El píxel
+# viejo (1341954716529641) convive en /solicitar durante la migración
+# de campañas Meta, así las campañas que optimizan contra ese píxel
+# siguen viendo conversiones.
+#
+# Cualquier request bajo /onboarding/* devuelve 301 → /solicitar.
+# Query string se preserva (QSA) para no perder UTMs ni fbclid/gclid.
+# =====================================================================
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /onboarding/
+  RewriteRule ^ /solicitar [R=301,L,QSA]
+</IfModule>
+
+# Fallback si mod_rewrite no está disponible: redirect directo.
+<IfModule mod_alias.c>
+  RedirectMatch 301 ^/onboarding(/.*)?$ /solicitar
+</IfModule>
