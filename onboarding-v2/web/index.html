@@ -1356,9 +1356,10 @@ function obSubmitForm(){
     ob.busy=false;
     ob.lead=r.lead_id;
     ob.createdAt=new Date().toISOString();
-    /* Conversión: se generó un lead. Mismo punto donde el form de Kommo lo crea.
-       event_id del backend se pasa a fbq para que Meta deduplique con el envío CAPI. */
-    trackEvent('generate_lead','Lead',{lead_id:r.lead_id, categoria:ob.cat}, r.event_id);
+    /* Conversión: se generó un lead. GA sigue viajando desde el browser; el evento Lead
+       de Meta se dispara ÚNICAMENTE server-side (CAPI) para evitar doble conteo durante
+       transiciones de cache. El backend ya lo mandó con los datos del contacto. */
+    trackEvent('generate_lead', null, {lead_id:r.lead_id, categoria:ob.cat});
     if(window.gtag) gtag('event','conversion',{send_to:'AW-11454575160/BkbtCOfg7dUcELjk-9Uq',value:1.0,currency:'ARS'});
     /* El lead ya existe. A partir de acá nada se pierde. */
     /* UNR reactivada: sigue el flujo normal al Paso 3 (pide 3 recibos). */
@@ -1413,7 +1414,8 @@ function obConfirmYafue(){
     if(!ob.lead){ ob.lead=r.lead_id; ob.createdAt=new Date().toISOString(); }
     ob.estado='derivado_yafue';
     obSave();
-    trackEvent('generate_lead','Lead',{lead_id:r.lead_id, categoria:'YAFUE'}, r.event_id);
+    /* Lead solo server-side (CAPI). Browser conserva solo gtag para Google Ads. */
+    trackEvent('generate_lead', null, {lead_id:r.lead_id, categoria:'YAFUE'});
     if(window.gtag) gtag('event','conversion',{send_to:'AW-11454575160/BkbtCOfg7dUcELjk-9Uq',value:1.0,currency:'ARS'});
     window.open('https://yafue.ar','_blank','noopener,noreferrer');
     reset();
