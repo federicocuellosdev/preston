@@ -889,9 +889,22 @@ function trackPage(path,title){
   if(window.gtag) gtag('event','page_view',{page_path:path,page_title:title,page_location:location.origin+path});
   if(window.fbq)  fbq('track','PageView');
 }
-function trackEvent(ga,meta,params){
+function trackEvent(ga,meta,params,eventID){
   if(window.gtag && ga)  gtag('event',ga,params||{});
-  if(window.fbq  && meta) fbq('track',meta,params||{});
+  if(window.fbq  && meta){
+    /* eventID habilita la desduplicación con el Lead que el backend manda vía CAPI.
+       Meta matchea event_name + eventID dentro de la ventana de 48 h. */
+    if(eventID) fbq('track',meta,params||{},{eventID:eventID});
+    else        fbq('track',meta,params||{});
+  }
+}
+/* Helpers para enviar fbp/fbc/url al backend y mejorar la calidad del match CAPI. */
+function obCookie(name){
+  var m=document.cookie.match(new RegExp('(?:^|; )'+name.replace(/([.$?*|{}()\[\]\\\/\+^])/g,'\\$1')+'=([^;]*)'));
+  return m?decodeURIComponent(m[1]):null;
+}
+function obMetaCtx(){
+  return {fbp:obCookie('_fbp'), fbc:obCookie('_fbc'), event_source_url:location.href};
 }
 function route(key){
   var r=ROUTES[key]; if(!r||_suppressRoute) return;
@@ -1330,19 +1343,22 @@ function obSubmitForm(){
   }
 
   ob.busy=true; obFoot();
+  var _ctx=obMetaCtx();
   PrestonAPI.createLead({
     categoria:ob.cat, sub_categoria:ob.sub, motivo_yafue:ob.motivo,
     situacion_laboral:ob.ans.situacion_laboral||null, jurisdiccion:ob.ans.jurisdiccion||null,
     tipo_label:(ob.labels&&ob.labels.tipo)||null,
     categoria_label:(ob.labels&&ob.labels.categoria)||null,
     detalle_label:(ob.labels&&ob.labels.detalle)||null,
-    nombre:nombre, apellido:apellido, telefono:tel, dni:dni, email:ob.ans.email
+    nombre:nombre, apellido:apellido, telefono:tel, dni:dni, email:ob.ans.email,
+    fbp:_ctx.fbp, fbc:_ctx.fbc, event_source_url:_ctx.event_source_url
   }).then(function(r){
     ob.busy=false;
     ob.lead=r.lead_id;
     ob.createdAt=new Date().toISOString();
-    /* Conversión: se generó un lead. Mismo punto donde el form de Kommo lo crea. */
-    trackEvent('generate_lead','Lead',{lead_id:r.lead_id, categoria:ob.cat});
+    /* Conversión: se generó un lead. Mismo punto donde el form de Kommo lo crea.
+       event_id del backend se pasa a fbq para que Meta deduplique con el envío CAPI. */
+    trackEvent('generate_lead','Lead',{lead_id:r.lead_id, categoria:ob.cat}, r.event_id);
     if(window.gtag) gtag('event','conversion',{send_to:'AW-11454575160/BkbtCOfg7dUcELjk-9Uq',value:1.0,currency:'ARS'});
     /* El lead ya existe. A partir de acá nada se pierde. */
     /* UNR reactivada: sigue el flujo normal al Paso 3 (pide 3 recibos). */
@@ -1378,6 +1394,7 @@ function obConfirmYafue(){
     ? PrestonAPI.enrichLead(ob.lead,{yafue:true,motivo_yafue:'banco-no-apto',banco:'otro'},{}).catch(function(){})
     : Promise.resolve();
 
+  var _ctxYafue=obMetaCtx();
   pMark.then(function(){
     return PrestonAPI.createLead({
       categoria:'YAFUE', sub_categoria:ob.sub||null, motivo_yafue:ob.motivo||null,
@@ -1386,7 +1403,8 @@ function obConfirmYafue(){
       categoria_label:(ob.labels&&ob.labels.categoria)||null,
       detalle_label:(ob.labels&&ob.labels.detalle)||null,
       nombre:ob.ans.nombre, apellido:ob.ans.apellido, telefono:ob.ans.telefono, dni:ob.ans.dni,
-      email:ob.ans.email||null
+      email:ob.ans.email||null,
+      fbp:_ctxYafue.fbp, fbc:_ctxYafue.fbc, event_source_url:_ctxYafue.event_source_url
     });
   }).then(function(r){
     ob.busy=false;
@@ -1395,7 +1413,7 @@ function obConfirmYafue(){
     if(!ob.lead){ ob.lead=r.lead_id; ob.createdAt=new Date().toISOString(); }
     ob.estado='derivado_yafue';
     obSave();
-    trackEvent('generate_lead','Lead',{lead_id:r.lead_id, categoria:'YAFUE'});
+    trackEvent('generate_lead','Lead',{lead_id:r.lead_id, categoria:'YAFUE'}, r.event_id);
     if(window.gtag) gtag('event','conversion',{send_to:'AW-11454575160/BkbtCOfg7dUcELjk-9Uq',value:1.0,currency:'ARS'});
     window.open('https://yafue.ar','_blank','noopener,noreferrer');
     reset();

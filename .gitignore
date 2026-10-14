@@ -24,3 +24,6 @@ package-lock.json.bak
 # OS
 .DS_Store
 Thumbs.db
+
+# Playwright storage state (contiene cookies de sesión)
+bot/.auth.json
